@@ -39,6 +39,14 @@ class entryService {
     getTotalDebitAndCreditAmount(id){
             return axiosInstance.get(`/get-entry-by-id/${id}`)
     }
+
+    finalTransaction(debitTotalAmount, creditTotalAmount, voucherId){
+        return axiosInstance.post('add-tran-entry',{
+            debitTotalAmount:debitTotalAmount,
+            creditTotalAmount: creditTotalAmount,
+            voucherId: voucherId
+        })
+    }
 }
 
 export default new entryService();

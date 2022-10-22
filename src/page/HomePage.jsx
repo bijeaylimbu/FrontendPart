@@ -105,6 +105,16 @@ export default function HomePage() {
         setTotalCredit(res.data.credit)
       })
   }
+
+  const finalSubmit = () => {
+    if (totalCredit !== totalDebit) {
+      alert("Credit and Debit value doesn't match");
+    } else {
+      var entryId = window.sessionStorage.getItem("entryId");
+      entryService.finalTransaction(totalDebit, totalCredit, entryId);
+    }
+
+  }
   return (
     <>
       <div>
@@ -133,7 +143,6 @@ export default function HomePage() {
                   id="demo-simple-select"
                   onChange={e => setVoucherType(e.target.value)}
                 >
-
                   <MenuItem value="DEBIT"  >DEBIT</MenuItem>
                   <MenuItem value="CREDIT"  >CREDIT</MenuItem>
 
@@ -186,7 +195,7 @@ export default function HomePage() {
                 Submit
               </Button>
             </div>
-
+            <Button variant="contained" style={{ marginTop: "200px", backgroundColor: "green" }} onClick={finalSubmit}>Submit</Button>
           </div>
           <div style={{ width: "40%", float: "left", marginLeft: "5%" }}>
             <TableContainer component={Paper}>
@@ -231,8 +240,8 @@ export default function HomePage() {
               </Table>
             </TableContainer>
           </div>
-        </div>
 
+        </div>
       </div>
     </>
   );
