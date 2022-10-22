@@ -47,6 +47,14 @@ class entryService {
             voucherId: voucherId
         })
     }
+
+    updateEntry(id,type, subType, amount){
+        return axiosInstance.put(`/update-entry/${id}`,{
+            type: type,
+            subType:  subType,
+            amount:  parseFloat (amount)
+        })
+    }
 }
 
 export default new entryService();
