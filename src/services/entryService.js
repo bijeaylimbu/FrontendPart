@@ -48,9 +48,10 @@ class entryService {
         })
     }
 
-    updateEntry(id,type, subType, amount){
+    updateEntry(id,updatedType, subType, amount){
+        console.log(updatedType)
         return axiosInstance.put(`/update-entry/${id}`,{
-            type: type,
+            type: updatedType,
             subType:  subType,
             amount:  parseFloat (amount)
         })

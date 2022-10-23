@@ -39,10 +39,11 @@ export default function HomePage() {
   const [totalDebit, setTotalDebit] = useState();
   const [totalCredit, setTotalCredit] = useState();
   const [edit, setEdit] = useState(false);
-  const [updateType, setUpdateType]=useState();
-  const [updateSubType, setUpdateSubType]=useState();
-  const [updateAmount, setUpdateAmount]=useState();
-  const [id, setId]=useState();
+  const [updateType, setUpdateType] = useState();
+  const [updateSubType, setUpdateSubType] = useState();
+  const [updateAmount, setUpdateAmount] = useState();
+  const [id, setId] = useState();
+  console.log(subType)
   useEffect(() => {
     entryService.getAllVoucher()
       .then(res => setType(res.data));
@@ -120,14 +121,19 @@ export default function HomePage() {
     }
   }
   const updateEntry = () => {
-    entryService.updateEntry(id, updateType, updateSubType, updateAmount);
+    entryService.updateEntry(id, updateType, subType, amount);
   }
 
-  const handleShow = async (id, type, subType, amount, ) => {
+  const handleShow = async (id, debit, credit, ledger) => {
     setId(id);
-    setType(type);
-    setSubType(subType);
-    setAmount(amount);
+    setSubType(ledger);
+    if (type == "CREDIT") {
+      setAmount(credit);
+    }
+    else{
+      setAmount(debit);
+    }
+
     setEdit(true)
   }
   return (
@@ -160,6 +166,8 @@ export default function HomePage() {
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
                       onChange={e => setUpdateType(e.target.value)}
+                      value={updateType}
+                      
                     >
                       <MenuItem value="DEBIT"  >DEBIT</MenuItem>
                       <MenuItem value="CREDIT"  >CREDIT</MenuItem>
@@ -169,8 +177,8 @@ export default function HomePage() {
                   <Box sx={{ minWidth: 120 }}>
                     <InputLabel id="demo-simple-select-label" style={{ marginTop: "20px" }}>Voucher Type</InputLabel>
                     <Select
-                      value={updateSubType}
-                      onChange={e => setUpdateSubType(e.target.value)}
+                      value={subType}
+                      onChange={e => setSubType(e.target.value)}
                       style={{ marginTop: "10px" }}
                     >
                       {allLedger?.map(data => (
@@ -185,8 +193,8 @@ export default function HomePage() {
                     name="amount"
                     label="amount"
                     type="number"
-                    value={updateAmount}
-                    onChange={e => setUpdateAmount(e.target.value)}
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
                     error={formik.touched.amount && Boolean(formik.errors.amount)}
                     helperText={formik.touched.amount && formik.errors.amount}
                     style={{ marginTop: "10px" }}
@@ -300,7 +308,7 @@ export default function HomePage() {
                       <TableCell align="right">{row.ledger}</TableCell>
                       <TableCell align="right">{row.debit}</TableCell>
                       <TableCell align="right">{row.credit}</TableCell>
-                      <button align="right" onClick={()=>handleShow(row.id, row.type, row.subType, row.amount) }  >update</button>
+                      <button align="right" onClick={() => handleShow(row.id, row.debit, row.credit, row.ledger)}  >update</button>
                     </TableRow>
                   ))}
                 </TableBody>
