@@ -43,7 +43,21 @@ export default function HomePage() {
   const [updateSubType, setUpdateSubType] = useState();
   const [updateAmount, setUpdateAmount] = useState();
   const [id, setId] = useState();
-  console.log(subType)
+  const [inputList, setInputList] = useState([])
+
+  const [inputValue, setInputValue] = useState({ voucherType: "", subType: "", amount: "", entryDate: "", entryId: "" })
+  console.log(inputList)
+  const handleInputChange = (e) => {
+    console.log(e.target.value)
+    // for (var i = 0; i <= inputList.length; i++) {
+    //   const { name, value } = e.target;
+    //   const list = [...inputList]
+    //   list[i][name] = value;
+    //   setInputList(list);
+    // }
+
+    setInputValue(e.target.value);
+  }
   useEffect(() => {
     entryService.getAllVoucher()
       .then(res => setType(res.data));
@@ -82,16 +96,30 @@ export default function HomePage() {
 
   const addEntry = (e) => {
     e.preventDefault();
-    if (window.sessionStorage.getItem("entryId") == null) {
-      entryService.addEntry(voucherType, subType, amount, entryDate);
-      getAllEntry();
-      getTotalDebitAndCreditAmont();
-    } else {
-      var entryId = window.sessionStorage.getItem("entryId");
-      entryService.addEntryWithId(voucherType, subType, amount, entryDate, entryId);
-      getAllEntry();
-      getTotalDebitAndCreditAmont();
+    const newItem = {
+      voucherType: voucherType,
+      subType: subType,
+      amount: amount,
+      entryDate: entryDate,
+      id: inputList.length
+
     }
+    const newItems = [...inputList, newItem];
+    setInputList(newItems);
+    setVoucherType("")
+    setSubType("")
+    setAmount("")
+    setEntryDate("")
+    // if (window.sessionStorage.getItem("entryId") == null) {
+    //   entryService.addEntry(voucherType, subType, amount, entryDate);
+    //   getAllEntry();
+    //   getTotalDebitAndCreditAmont();
+    // } else {
+    //   var entryId = window.sessionStorage.getItem("entryId");
+    //   entryService.addEntryWithId(voucherType, subType, amount, entryDate, entryId);
+    //   getAllEntry();
+    //   getTotalDebitAndCreditAmont();
+    // }
   }
 
   const getAllEntry = () => {
@@ -120,27 +148,201 @@ export default function HomePage() {
       entryService.finalTransaction(totalDebit, totalCredit, entryId);
     }
   }
-  const updateEntry = () => {
-    entryService.updateEntry(id, updateType, subType, amount);
+  const updateEntry = (id, voucherType, amount, subType) => {
+    setInputList(inputList.map((item)=>{
+      if(item.id==id){
+        item.voucherType=voucherType;
+       item.amount=amount;
+       item.subType=subType;  
+      }
+      setInputList(inputList);
+    }))
+    // entryService.updateEntry(id, updateType, subType, amount);
   }
 
-  const handleShow = async (id, debit, credit, ledger) => {
+  const handleShow = async (id, voucherType, amount, subType) => {
     setId(id);
-    setSubType(ledger);
+    setSubType(subType);
+    setVoucherType(voucherType);
     if (type == "CREDIT") {
-      setAmount(credit);
+      setAmount(amount);
     }
-    else{
-      setAmount(debit);
+    else {
+      setAmount(amount);
     }
-
+   updateEntry(id, voucherType, amount,subType);
     setEdit(true)
   }
   return (
     <>
+      {edit == true
+        ?
+        <>
+          <div>
+            <div style={{ width: " 100%", marginTop: "20px", marginLeft: "50px" }}>
+              <Box sx={{ minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  onChange={handleChangeVoucher}
+                >
+                  {type?.map(data => (
+                    <MenuItem value={data}  >{data.name}</MenuItem>
+                  ))}
+                </Select>
+              </Box>
+            </div>
+            <Box sx={{ minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="voucherType"
+                value={voucherType}
+                onChange={e => setVoucherType(e.target.value)}
+              >
+                <MenuItem value="DEBIT"  >DEBIT</MenuItem>
+                <MenuItem value="CREDIT"  >CREDIT</MenuItem>
+
+              </Select>
+            </Box>
+            <Box sx={{ minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-label" style={{ marginTop: "20px" }}>Voucher Type</InputLabel>
+              <Select
+                value={subType}
+                name="subType"
+                onChange={e => setSubType(e.target.value)}
+                style={{ marginTop: "10px" }}
+              >
+                {allLedger?.map(data => (
+
+                  <MenuItem value={data.name} >{data.name}</MenuItem>
+                ))}
+              </Select>
+            </Box>
+            <TextField
+              fullWidth
+              id="amount"
+              name="amount"
+              label="amount"
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              error={formik.touched.amount && Boolean(formik.errors.amount)}
+              helperText={formik.touched.amount && formik.errors.amount}
+              style={{ marginTop: "10px" }}
+            />
+            <TextField
+              fullWidth
+              id="entryDate"
+              name="entryDate"
+              label=""
+              type="date"
+              value={entryDate}
+              // value={ e=>setEntryDate(e.target.entryDate)}
+              onChange={e => setEntryDate(e.target.value)}
+              error={formik.touched.entryDate && Boolean(formik.errors.entryDate)}
+              helperText={formik.touched.entryDate && formik.errors.entryDate}
+              style={{ marginTop: "10px" }}
+            />
+            <Button color="primary"
+              variant="contained"
+              fullWidth type="submit"
+              style={{ marginTop: "20px" }}
+              onClick={updateEntry}
+            >
+              Update
+            </Button>
+          </div>
+        </>
+        :
+        <>
+          <div>
+            <div style={{ width: " 100%", marginTop: "20px", marginLeft: "50px" }}>
+              <Box sx={{ minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  onChange={handleChangeVoucher}
+                >
+                  {type?.map(data => (
+                    <MenuItem value={data}  >{data.name}</MenuItem>
+                  ))}
+                </Select>
+              </Box>
+            </div>
+            <Box sx={{ minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                name="voucherType"
+                value={voucherType}
+                onChange={e => setVoucherType(e.target.value)}
+              >
+                <MenuItem value="DEBIT"  >DEBIT</MenuItem>
+                <MenuItem value="CREDIT"  >CREDIT</MenuItem>
+
+              </Select>
+            </Box>
+            <Box sx={{ minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-label" style={{ marginTop: "20px" }}>Voucher Type</InputLabel>
+              <Select
+                value={subType}
+                name="subType"
+                onChange={e => setSubType(e.target.value)}
+                style={{ marginTop: "10px" }}
+              >
+                {allLedger?.map(data => (
+
+                  <MenuItem value={data.name} >{data.name}</MenuItem>
+                ))}
+              </Select>
+            </Box>
+            <TextField
+              fullWidth
+              id="amount"
+              name="amount"
+              label="amount"
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              error={formik.touched.amount && Boolean(formik.errors.amount)}
+              helperText={formik.touched.amount && formik.errors.amount}
+              style={{ marginTop: "10px" }}
+            />
+            <TextField
+              fullWidth
+              id="entryDate"
+              name="entryDate"
+              label=""
+              type="date"
+              value={entryDate}
+              // value={ e=>setEntryDate(e.target.entryDate)}
+              onChange={e => setEntryDate(e.target.value)}
+              error={formik.touched.entryDate && Boolean(formik.errors.entryDate)}
+              helperText={formik.touched.entryDate && formik.errors.entryDate}
+              style={{ marginTop: "10px" }}
+            />
+            <Button color="primary"
+              variant="contained"
+              fullWidth type="submit"
+              style={{ marginTop: "20px" }}
+              onClick={addEntry}
+            >
+              Submit
+            </Button>
+          </div>
+        </>
+      }
+
+
+
       <div>
         <Button variant="contained" onClick={newEntry}>Add New Entry</Button>
-        <div style={{ width: " 100%", marginTop: "20px", marginLeft: "50px" }}>
+        {/* <div style={{ width: " 100%", marginTop: "20px", marginLeft: "50px" }}>
           <Box sx={{ minWidth: 120 }}>
             <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
             <Select
@@ -153,138 +355,9 @@ export default function HomePage() {
               ))}
             </Select>
           </Box>
-        </div>
+        </div> */}
         <div>
           <div style={{ width: "40%", float: "left", marginLeft: "5%", marginTop: "100px" }}>
-            {edit == true
-              ?
-              <>
-                <div>
-                  <Box sx={{ minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      onChange={e => setUpdateType(e.target.value)}
-                      value={updateType}
-                      
-                    >
-                      <MenuItem value="DEBIT"  >DEBIT</MenuItem>
-                      <MenuItem value="CREDIT"  >CREDIT</MenuItem>
-
-                    </Select>
-                  </Box>
-                  <Box sx={{ minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label" style={{ marginTop: "20px" }}>Voucher Type</InputLabel>
-                    <Select
-                      value={subType}
-                      onChange={e => setSubType(e.target.value)}
-                      style={{ marginTop: "10px" }}
-                    >
-                      {allLedger?.map(data => (
-
-                        <MenuItem value={data.name} >{data.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    id="amount"
-                    name="amount"
-                    label="amount"
-                    type="number"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    error={formik.touched.amount && Boolean(formik.errors.amount)}
-                    helperText={formik.touched.amount && formik.errors.amount}
-                    style={{ marginTop: "10px" }}
-                  />
-                  {/* <TextField
-                    fullWidth
-                    id="entryDate"
-                    name="entryDate"
-                    label=""
-                    type="date"
-                    // value={ e=>setEntryDate(e.target.entryDate)}
-                    onChange={e => setEntryDate(e.target.value)}
-                    error={formik.touched.entryDate && Boolean(formik.errors.entryDate)}
-                    helperText={formik.touched.entryDate && formik.errors.entryDate}
-                    style={{ marginTop: "10px" }}
-                  /> */}
-                  <Button color="primary"
-                    variant="contained"
-                    fullWidth type="submit"
-                    style={{ marginTop: "20px" }}
-                    onClick={updateEntry}
-                  >
-                    Update
-                  </Button>
-                </div>
-              </>
-              :
-              <>
-                <div>
-                  <Box sx={{ minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label">Voucher Type</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      onChange={e => setVoucherType(e.target.value)}
-                    >
-                      <MenuItem value="DEBIT"  >DEBIT</MenuItem>
-                      <MenuItem value="CREDIT"  >CREDIT</MenuItem>
-
-                    </Select>
-                  </Box>
-                  <Box sx={{ minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label" style={{ marginTop: "20px" }}>Voucher Type</InputLabel>
-                    <Select
-                      value={subType}
-                      name="subType"
-                      onChange={e => setSubType(e.target.value)}
-                      style={{ marginTop: "10px" }}
-                    >
-                      {allLedger?.map(data => (
-
-                        <MenuItem value={data.name} >{data.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </Box>
-                  <TextField
-                    fullWidth
-                    id="amount"
-                    name="amount"
-                    label="amount"
-                    type="number"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    error={formik.touched.amount && Boolean(formik.errors.amount)}
-                    helperText={formik.touched.amount && formik.errors.amount}
-                    style={{ marginTop: "10px" }}
-                  />
-                  <TextField
-                    fullWidth
-                    id="entryDate"
-                    name="entryDate"
-                    label=""
-                    type="date"
-                    // value={ e=>setEntryDate(e.target.entryDate)}
-                    onChange={e => setEntryDate(e.target.value)}
-                    error={formik.touched.entryDate && Boolean(formik.errors.entryDate)}
-                    helperText={formik.touched.entryDate && formik.errors.entryDate}
-                    style={{ marginTop: "10px" }}
-                  />
-                  <Button color="primary"
-                    variant="contained"
-                    fullWidth type="submit"
-                    style={{ marginTop: "20px" }}
-                    onClick={addEntry}
-                  >
-                    Submit
-                  </Button>
-                </div>
-              </>
-            }
 
             <Button variant="contained" style={{ marginTop: "200px", backgroundColor: "green" }} onClick={finalSubmit}>Submit</Button>
           </div>
@@ -300,15 +373,26 @@ export default function HomePage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {allEntry.map((row) => (
+                  {inputList.map((row) => (
+                  
                     <TableRow
-                      key={row.name}
+                      key={row.id}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <TableCell align="right">{row.ledger}</TableCell>
-                      <TableCell align="right">{row.debit}</TableCell>
-                      <TableCell align="right">{row.credit}</TableCell>
-                      <button align="right" onClick={() => handleShow(row.id, row.debit, row.credit, row.ledger)}  >update</button>
+                    >{row.voucherType === "DEBIT" ?
+                      <>
+                        <TableCell align="right">{row.subType}</TableCell>
+                        <TableCell align="right">{row.amount}</TableCell>
+                        <TableCell align="right"></TableCell>
+                        <button align="right" onClick={() => handleShow(row.id, row.voucherId, row.amount, row.subType)}  >update</button>
+                      </>
+                      :
+                      <>
+                        <TableCell align="right">{row.subType}</TableCell>
+                        <TableCell align="right"></TableCell>
+                        <TableCell align="right">{row.amount}</TableCell>
+                        <button align="right" onClick={() => handleShow(row.id, row.amount,row.voucherId, row.subType)}  >update</button>
+                      </>
+                      }
                     </TableRow>
                   ))}
                 </TableBody>
