@@ -149,11 +149,11 @@ export default function HomePage() {
     }
   }
   const updateEntry = (id, voucherType, amount, subType) => {
-    setInputList(inputList.map((item)=>{
-      if(item.id==id){
-        item.voucherType=voucherType;
-       item.amount=amount;
-       item.subType=subType;  
+    setInputList(inputList.map((item) => {
+      if (item.id == id) {
+        item.voucherType = voucherType;
+        item.amount = amount;
+        item.subType = subType;
       }
       setInputList(inputList);
     }))
@@ -170,7 +170,7 @@ export default function HomePage() {
     else {
       setAmount(amount);
     }
-   updateEntry(id, voucherType, amount,subType);
+    updateEntry(id, voucherType, amount, subType);
     setEdit(true)
   }
   return (
@@ -374,7 +374,7 @@ export default function HomePage() {
                 </TableHead>
                 <TableBody>
                   {inputList.map((row) => (
-                  
+
                     <TableRow
                       key={row.id}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -386,12 +386,16 @@ export default function HomePage() {
                         <button align="right" onClick={() => handleShow(row.id, row.voucherId, row.amount, row.subType)}  >update</button>
                       </>
                       :
-                      <>
-                        <TableCell align="right">{row.subType}</TableCell>
-                        <TableCell align="right"></TableCell>
-                        <TableCell align="right">{row.amount}</TableCell>
-                        <button align="right" onClick={() => handleShow(row.id, row.amount,row.voucherId, row.subType)}  >update</button>
-                      </>
+                      row.voucherType == "CREDIT" ?
+                        <>
+                          <TableCell align="right">{row.subType}</TableCell>
+                          <TableCell align="right"></TableCell>
+                          <TableCell align="right">{row.amount}</TableCell>
+                          <button align="right" onClick={() => handleShow(row.id, row.amount, row.voucherId, row.subType)}  >update</button>
+                        </>
+                        :
+                        <>
+                        </>
                       }
                     </TableRow>
                   ))}
