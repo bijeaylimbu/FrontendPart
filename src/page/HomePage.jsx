@@ -56,7 +56,7 @@ export default function HomePage() {
     //   setInputList(list);
     // }
 
-    setInputValue(e.target.value);
+    // setInputValue(e.target.value);
   }
   useEffect(() => {
     entryService.getAllVoucher()
@@ -148,29 +148,36 @@ export default function HomePage() {
       entryService.finalTransaction(totalDebit, totalCredit, entryId);
     }
   }
-  const updateEntry = (id, voucherType, amount, subType) => {
-    setInputList(inputList.map((item) => {
+  const updateEntry = (e) => {
+    e.preventDefault();
+    var el = inputList.map((item) => {
       if (item.id == id) {
         item.voucherType = voucherType;
         item.amount = amount;
         item.subType = subType;
+        console.log(item)
+        return item;
       }
-      setInputList(inputList);
-    }))
+    }
+    )
+    setInputList(el);
     // entryService.updateEntry(id, updateType, subType, amount);
   }
 
-  const handleShow = async (id, voucherType, amount, subType) => {
+  const handleShow = async (id, amount, subType, voucherType, e) => {
+    e.preventDefault();
+    console.log(id, amount, subType, voucherType)
     setId(id);
     setSubType(subType);
     setVoucherType(voucherType);
-    if (type == "CREDIT") {
-      setAmount(amount);
-    }
-    else {
-      setAmount(amount);
-    }
-    updateEntry(id, voucherType, amount, subType);
+    setAmount(amount);
+    // if (voucherType == "CREDIT") {
+    //   setAmount(amount);
+    // }
+    // else {
+    //   setAmount(amount);
+    // }
+    // updateEntry(id, amount, subType, voucherType);
     setEdit(true)
   }
   return (
@@ -250,7 +257,7 @@ export default function HomePage() {
               variant="contained"
               fullWidth type="submit"
               style={{ marginTop: "20px" }}
-              onClick={updateEntry}
+              onClick={e => updateEntry(e)}
             >
               Update
             </Button>
@@ -373,17 +380,17 @@ export default function HomePage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {inputList.map((row) => (
+                  {inputList?.map((row) => (
 
                     <TableRow
                       key={row.id}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >{row.voucherType === "DEBIT" ?
+                    >{row?.voucherType === "DEBIT" ?
                       <>
                         <TableCell align="right">{row.subType}</TableCell>
                         <TableCell align="right">{row.amount}</TableCell>
                         <TableCell align="right"></TableCell>
-                        <button align="right" onClick={() => handleShow(row.id, row.voucherId, row.amount, row.subType)}  >update</button>
+                        <button align="right" onClick={(e) => handleShow(row.id, row.amount, row.subType, row.voucherType, e)}  >update</button>
                       </>
                       :
                       row.voucherType == "CREDIT" ?
@@ -391,7 +398,7 @@ export default function HomePage() {
                           <TableCell align="right">{row.subType}</TableCell>
                           <TableCell align="right"></TableCell>
                           <TableCell align="right">{row.amount}</TableCell>
-                          <button align="right" onClick={() => handleShow(row.id, row.amount, row.voucherId, row.subType)}  >update</button>
+                          <button align="right" onClick={(e) => handleShow(row.id, row.amount, row.subType, row.voucherType, e)}  >update</button>
                         </>
                         :
                         <>
@@ -421,7 +428,6 @@ export default function HomePage() {
               </Table>
             </TableContainer>
           </div>
-
         </div>
       </div>
     </>
