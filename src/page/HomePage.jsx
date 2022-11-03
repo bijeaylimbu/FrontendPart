@@ -45,8 +45,6 @@ export default function HomePage() {
   const [id, setId] = useState();
   const [inputList, setInputList] = useState([])
 
-  const [inputValue, setInputValue] = useState({ voucherType: "", subType: "", amount: "", entryDate: "", entryId: "" })
-  console.log(inputList)
   const handleInputChange = (e) => {
     console.log(e.target.value)
     // for (var i = 0; i <= inputList.length; i++) {
