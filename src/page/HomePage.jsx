@@ -44,7 +44,7 @@ export default function HomePage() {
   const [updateAmount, setUpdateAmount] = useState();
   const [id, setId] = useState();
   const [inputList, setInputList] = useState([])
-
+  console.log(inputList)
   const handleInputChange = (e) => {
     console.log(e.target.value)
     // for (var i = 0; i <= inputList.length; i++) {
@@ -148,18 +148,13 @@ export default function HomePage() {
   }
   const updateEntry = (e) => {
     e.preventDefault();
-    var el = inputList.map((item) => {
-      if (item.id == id) {
-        item.voucherType = voucherType;
-        item.amount = amount;
-        item.subType = subType;
-        console.log(item)
-        return item;
-      }
-    }
+    setInputList(inputList => inputList.map(item => item.id === id ? {
+      ...item,
+      voucherType,
+      amount,
+      subType
+    } : item)
     )
-    setInputList(el);
-    // entryService.updateEntry(id, updateType, subType, amount);
   }
 
   const handleShow = async (id, amount, subType, voucherType, e) => {
